@@ -2,6 +2,7 @@ package com.alura.foro.controller;
 
 import com.alura.foro.domain.ValidacionException;
 import com.alura.foro.domain.topico.*;
+import com.alura.foro.infra.errores.TopicoNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -12,6 +13,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 
 @RestController
@@ -54,5 +56,17 @@ public class TopicoController {
                 .map(DatosListadoTopico::new)
                 .getContent();
         return ResponseEntity.ok(topicos);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Object> obtenerDetalleTopico(@PathVariable Long id) {
+        if (id == null) {
+            return ResponseEntity.badRequest().body("ID es requerido");
+        }
+
+        Topico topico = topicoRepository.findById(id)
+                .orElseThrow(() -> new TopicoNotFoundException("Tópico no encontrado con ID: " + id));
+        DatosListadoTopico datosDetalleTopico = new DatosListadoTopico(topico);
+        return ResponseEntity.ok(datosDetalleTopico);
     }
 }

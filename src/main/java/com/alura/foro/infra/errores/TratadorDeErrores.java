@@ -2,6 +2,7 @@ package com.alura.foro.infra.errores;
 
 import com.alura.foro.domain.ValidacionException;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -26,7 +27,10 @@ public class TratadorDeErrores {
     public ResponseEntity tratarErrorDeValidacion(ValidacionException e){
         return ResponseEntity.badRequest().body(e.getMessage());
     }
-
+    @ExceptionHandler(TopicoNotFoundException.class)
+    public ResponseEntity tratarErrorTopicoNoEncontrado(TopicoNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
     private record DatosErrorValidacion(String campo, String error){
         public DatosErrorValidacion(FieldError error) {
             this(error.getField(), error.getDefaultMessage());
