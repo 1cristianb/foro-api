@@ -32,7 +32,7 @@ public class Topico {
         this.titulo = datos.titulo();
         this.mensaje = datos.mensaje();
         this.fechaCreacion = datos.fecha_creacion();
-        this.status = StatusTopico.NO_RESPONDIDO;
+        this.status = datos.status() != null ? datos.status() : StatusTopico.NO_RESPONDIDO;
         this.autor = datos.autor();
         this.curso = datos.curso();
     }
