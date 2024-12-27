@@ -2,12 +2,15 @@ package com.alura.foro.controller;
 
 import com.alura.foro.domain.ValidacionException;
 import com.alura.foro.domain.topico.*;
+import com.alura.foro.domain.usuario.Usuario;
+import com.alura.foro.domain.usuario.UsuarioRepository;
 import com.alura.foro.infra.errores.TopicoNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -21,6 +24,8 @@ import java.util.Optional;
 public class TopicoController {
     @Autowired
     private TopicoRepository topicoRepository;
+    @Autowired
+    private UsuarioRepository usuarioRepository;
     @PostMapping
     public ResponseEntity<DatosRespuestaTopico> registrarTopico(
             @RequestBody @Valid DatosRegistroTopico datosRegistroTopico,
@@ -68,5 +73,34 @@ public class TopicoController {
                 .orElseThrow(() -> new TopicoNotFoundException("Tópico no encontrado con ID: " + id));
         DatosListadoTopico datosDetalleTopico = new DatosListadoTopico(topico);
         return ResponseEntity.ok(datosDetalleTopico);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<DatosListadoTopico> actualizarTopico(
+            @PathVariable Long id,
+            @Valid @RequestBody DatosActualizarTopico datosActualizarTopico) {
+
+        Optional<Topico> topicoOptional = topicoRepository.findById(id);
+        if (topicoOptional.isEmpty()) {
+            throw new TopicoNotFoundException("Tópico no encontrado con ID: " + id);
+        }
+        Topico topico = topicoOptional.get();
+
+        if (topicoRepository.existsByTituloAndMensajeAndIdNot(
+                datosActualizarTopico.titulo(),
+                datosActualizarTopico.mensaje(),
+                id)) {
+            throw new ValidacionException("Ya existe un tópico con el mismo título y mensaje");
+        }
+
+        topico.setTitulo(datosActualizarTopico.titulo());
+        topico.setMensaje(datosActualizarTopico.mensaje());
+        topico.setStatus(datosActualizarTopico.status());
+        topico.setAutor(datosActualizarTopico.autor());
+        topico.setCurso(datosActualizarTopico.curso());
+
+        topicoRepository.save(topico);
+
+        return ResponseEntity.ok(new DatosListadoTopico(topico));
     }
 }
