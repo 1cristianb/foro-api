@@ -1,23 +1,21 @@
 package com.alura.foro.domain.topico;
 
 import java.time.LocalDateTime;
-public record DatosRespuestaTopico(
-        Long id,
+
+public record DatosListadoTopico(
         String titulo,
         String mensaje,
         LocalDateTime fechaCreacion,
         StatusTopico status,
         String autor,
-        String curso
-) {
-    public DatosRespuestaTopico(Topico topico) {
+        String curso) {
+    public DatosListadoTopico(Topico topico) {
         this(
-                topico.getId(),
                 topico.getTitulo(),
                 topico.getMensaje(),
                 topico.getFechaCreacion(),
                 topico.getStatus(),
-                topico.getAutor().getUsername(),
+                topico.getAutor().getLogin(),
                 topico.getCurso()
         );
     }
