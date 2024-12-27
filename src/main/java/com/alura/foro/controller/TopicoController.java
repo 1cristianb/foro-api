@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -102,5 +103,19 @@ public class TopicoController {
         topicoRepository.save(topico);
 
         return ResponseEntity.ok(new DatosListadoTopico(topico));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> eliminarTopico(@PathVariable Long id) {
+        Optional<Topico> topicoOptional = topicoRepository.findById(id);
+
+        if (topicoOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Tópico no encontrado con ID: " + id);
+        }
+
+        topicoRepository.deleteById(id);
+
+        return ResponseEntity.ok("Tópico eliminado con éxito con ID: " + id);
     }
 }
